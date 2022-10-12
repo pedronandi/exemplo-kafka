@@ -25,6 +25,7 @@ class KafkaDispatcher<T> implements Closeable {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GsonSerializer.class.getName());
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all"); //OK do líder vem depois que está tudo sincronizado junto às réplicas (ISR = In Sync Replicas)
 
         return properties;
     }

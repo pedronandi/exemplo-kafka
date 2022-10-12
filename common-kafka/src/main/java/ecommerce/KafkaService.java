@@ -47,7 +47,11 @@ class KafkaService<T> implements Closeable {
                 System.out.println("Found " + records.count() + " records");
 
                 for (var record : records) {
-                    parse.consume(record);
+                    try {
+                        parse.consume(record);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
