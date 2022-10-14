@@ -16,27 +16,25 @@ import java.util.regex.Pattern;
 class KafkaService<T> implements Closeable {
 
     private final String groupId;
-    private final KafkaConsumer<String, T> consumer;
-    private final ConsumerFunction parse;
-    private final Class<T> classType;
+    private final KafkaConsumer<String, Message<T>> consumer;
+    private final ConsumerFunction<T> parse;
     private final Map<String, String> properties;
 
-    KafkaService(String groupId, String topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
-        this(groupId, parse, type, properties);
+    KafkaService(String groupId, String topic, ConsumerFunction<T> parse, Map<String, String> properties) {
+        this(groupId, parse, properties);
         consumer.subscribe(Collections.singletonList(topic));
     }
 
-    KafkaService(String groupId, Pattern topic, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
-        this(groupId, parse, type, properties);
+    KafkaService(String groupId, Pattern topic, ConsumerFunction<T> parse, Map<String, String> properties) {
+        this(groupId, parse, properties);
         consumer.subscribe(topic);
     }
 
-    private KafkaService(String groupId, ConsumerFunction parse, Class<T> type, Map<String, String> properties) {
+    private KafkaService(String groupId, ConsumerFunction<T> parse, Map<String, String> properties) {
         this.groupId = groupId;
         this.parse = parse;
-        this.classType = type;
         this.properties = properties;
-        this.consumer = new KafkaConsumer<String, T>(getProperties(this.properties));
+        this.consumer = new KafkaConsumer<String, Message<T>>(getProperties(this.properties));
     }
 
     void run() {
@@ -66,7 +64,6 @@ class KafkaService<T> implements Closeable {
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.groupId);
         properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString());
         properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
-        properties.setProperty(GsonDeserializer.TYPE_CONFIG, this.classType.getName());
         properties.putAll(overrideProperties);
 
         return properties;

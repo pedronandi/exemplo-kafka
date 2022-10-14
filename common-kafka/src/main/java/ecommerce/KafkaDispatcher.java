@@ -13,10 +13,10 @@ import java.util.concurrent.ExecutionException;
 
 class KafkaDispatcher<T> implements Closeable {
 
-    private final KafkaProducer<String, T> producer;
+    private final KafkaProducer<String, Message<T>> producer;
 
     KafkaDispatcher() {
-        this.producer = new KafkaProducer<String, T>(properties());
+        this.producer = new KafkaProducer<String, Message<T>>(properties());
     }
 
     private static Properties properties() {
@@ -30,8 +30,9 @@ class KafkaDispatcher<T> implements Closeable {
         return properties;
     }
 
-    void send(String topic, String key, T value) throws ExecutionException, InterruptedException {
-        var record = new ProducerRecord<String, T>(topic, key, value);
+    void send(String topic, String key, CorrelationId id, T payload) throws ExecutionException, InterruptedException {
+        var value = new Message<T>(id, payload);
+        var record = new ProducerRecord<String, Message<T>>(topic, key, value);
 
         /*
          * send() é assíncrono pq retorna um Future (vai ser executado no futuro)

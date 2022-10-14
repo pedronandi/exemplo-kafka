@@ -10,21 +10,22 @@ public class EmailService {
     public static void main(String[] args) throws IOException {
         var emailService = new EmailService();
 
-        try(var service = new KafkaService<Email>(EmailService.class.getSimpleName(),
+        try(var service = new KafkaService<>(EmailService.class.getSimpleName(),
                 "ECOMMERCE_SEND_EMAIL",
                 emailService::parse,
-                Email.class,
                 new HashMap<>())) {
 
             service.run();
         }
     }
 
-    private void parse(ConsumerRecord<String, Email> record) {
+    private void parse(ConsumerRecord<String, Message<Email>> record) {
+        var message = record.value();
+
         System.out.println("----------------------------------------");
         System.out.println("Sending e-mail");
         System.out.println("Key " + record.key());
-        System.out.println("Value " + record.value());
+        System.out.println("Value " + message.getPayload());
         System.out.println("Part. " + record.partition());
         System.out.println("Off " + record.offset());
 

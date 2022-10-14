@@ -17,8 +17,14 @@ public class NewOrderMain {
                     var order = new Order(orderId, amount, userEmail);
                     var email = new Email("First contact!", "Thank you for your order! We're processing your order!");
 
-                    orderDispatcher.send("ECOMMERCE_NEW_ORDER", userEmail, order);
-                    emailDispatcher.send("ECOMMERCE_SEND_EMAIL", userEmail, email);
+                    orderDispatcher.send("ECOMMERCE_NEW_ORDER",
+                            userEmail,
+                            new CorrelationId(NewOrderMain.class.getSimpleName()),
+                            order);
+                    emailDispatcher.send("ECOMMERCE_SEND_EMAIL",
+                            userEmail,
+                            new CorrelationId(NewOrderMain.class.getSimpleName()),
+                            email);
                 }
             }
         }
