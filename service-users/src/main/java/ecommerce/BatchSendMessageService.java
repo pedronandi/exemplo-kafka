@@ -29,7 +29,7 @@ public class BatchSendMessageService {
         }
     }
 
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) throws SQLException, IOException, ExecutionException, InterruptedException {
         var batchService = new BatchSendMessageService();
 
         try(var service = new KafkaService<>(BatchSendMessageService.class.getSimpleName(),
@@ -50,10 +50,12 @@ public class BatchSendMessageService {
         System.out.println("Topic: " + message.getPayload());
 
         for(User user : getAllUsers()) {
-            userDispatcher.send(message.getPayload(),
+            userDispatcher.sendAsync(message.getPayload(),
                     user.getUuid(),
                     message.getCorrelationId().continueWith(BatchSendMessageService.class.getSimpleName()),
                     user);
+
+            System.out.println("Sent to " + user);
         }
     }
 

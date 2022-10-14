@@ -3,8 +3,6 @@ N
 service-reading-report/pom.xml,a/6/a607e01826a9620285f75abbc7be84083a86401f
 _
 /service-users/src/main/java/ecommerce/User.java,4/b/4b95d369895cf08835cbfc01d5f7c57d9c4a1b29
-h
-8common-kafka/src/main/java/ecommerce/GsonSerializer.java,6/9/693c588892817bdb4c5a7e700a13a4b848559453
 j
 :common-kafka/src/main/java/ecommerce/ConsumerFunction.java,f/c/fc10e9f8adeee9638d34e3a72249eeb4e5ed3628
 h
@@ -19,8 +17,6 @@ g
 7service-email/src/main/java/ecommerce/EmailService.java,9/c/9c9bfb3e06c069d809a4d847f71fa02fe8d5ae18
 j
 :common-kafka/src/main/java/ecommerce/GsonDeserializer.java,e/d/ed3df894466195df9664a93a312ad7ae4f73f870
-f
-6common-kafka/src/main/java/ecommerce/KafkaService.java,3/0/30f8baae762320c163dfc25d72726613d5d92ef6
 c
 3service-log/src/main/java/ecommerce/LogService.java,f/b/fb02042ae9f63736e9457685db3827adc1636eee
 x
@@ -29,5 +25,3 @@ k
 ;service-new-order/src/main/java/ecommerce/NewOrderMain.java,f/3/f39528c61dfae7585041c72e408fedd2f26b6b93
 s
 Cservice-http-ecommerce/src/main/java/ecommerce/NewOrderServlet.java,c/8/c8ed9e96ad78c3d1dd85d72d2ab831a338c3993e
-x
-Hservice-fraud-detector/src/main/java/ecommerce/FraudDetectorService.java,8/6/869f26c110796aeea55ff06aaf40b8236ec7e766

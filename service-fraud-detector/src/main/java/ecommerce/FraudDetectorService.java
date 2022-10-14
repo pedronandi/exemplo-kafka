@@ -11,7 +11,7 @@ public class FraudDetectorService {
 
     private final KafkaDispatcher<Order> orderDispatcher = new KafkaDispatcher<Order>();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         var fraudService = new FraudDetectorService();
 
         try(var service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),

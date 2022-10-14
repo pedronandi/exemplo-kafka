@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 class KafkaService<T> implements Closeable {
@@ -37,18 +38,25 @@ class KafkaService<T> implements Closeable {
         this.consumer = new KafkaConsumer<String, Message<T>>(getProperties(this.properties));
     }
 
-    void run() {
-        while(true) {
-            var records = consumer.poll(Duration.ofMillis(100));
+    void run() throws ExecutionException, InterruptedException, IOException {
+        try(var deadLetter = new KafkaDispatcher<>()) {
+            while(true) {
+                var records = consumer.poll(Duration.ofMillis(100)); //Heart-beat: 100ms ele pinga no servidor
 
-            if (!records.isEmpty()) {
-                System.out.println("Found " + records.count() + " records");
+                if (!records.isEmpty()) {
+                    System.out.println("Found " + records.count() + " records");
 
-                for (var record : records) {
-                    try {
-                        parse.consume(record);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    for (var record : records) {
+                        try {
+                            parse.consume(record);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            var message = record.value();
+                            deadLetter.send("ECOMMERCE_DEADLETTER",
+                                    message.getCorrelationId().toString(),
+                                    message.getCorrelationId().continueWith("DeadLetter"),
+                                    new GsonSerializer().serialize("", message));
+                        }
                     }
                 }
             }
@@ -63,7 +71,7 @@ class KafkaService<T> implements Closeable {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, GsonDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.groupId);
         properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString());
-        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1"); //Quantidade de msg consumidas por vez, pelo consumidor
         properties.putAll(overrideProperties);
 
         return properties;

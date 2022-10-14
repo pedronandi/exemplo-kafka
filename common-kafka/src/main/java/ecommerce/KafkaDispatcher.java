@@ -4,12 +4,14 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 class KafkaDispatcher<T> implements Closeable {
 
@@ -31,6 +33,12 @@ class KafkaDispatcher<T> implements Closeable {
     }
 
     void send(String topic, String key, CorrelationId id, T payload) throws ExecutionException, InterruptedException {
+        Future<RecordMetadata> future = sendAsync(topic, key, id, payload);
+        //o get() segura a thread até que o kafka confirme que a msg foi enviada (síncrono)
+        future.get();
+    }
+
+    Future<RecordMetadata> sendAsync(String topic, String key, CorrelationId id, T payload) {
         var value = new Message<T>(id, payload);
         var record = new ProducerRecord<String, Message<T>>(topic, key, value);
 
@@ -38,7 +46,7 @@ class KafkaDispatcher<T> implements Closeable {
          * send() é assíncrono pq retorna um Future (vai ser executado no futuro)
          * mas é possível implementar um callback
          * */
-        producer.send(record, getCallback()).get();
+        return producer.send(record, getCallback());
     }
 
     private static Callback getCallback() {
